@@ -101,7 +101,7 @@ trait G8Module extends TaskModule {
     * @return
     *   the location of where your project has been generated
     */
-  def generate: Target[Path] = T {
+  def generate: Target[Path] = T.command {
     val log = T.log
     val output = T.dest / "result"
 
