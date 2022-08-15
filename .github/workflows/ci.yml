@@ -32,11 +32,12 @@ jobs:
         ./mill -i __.fix --check
 
   test:
-    runs-on: 'ubuntu-latest'
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         java: ['8', '17']
+        os: ['ubuntu-latest', 'windows-latest']
 
     steps:
     - uses: actions/checkout@v3
@@ -46,13 +47,24 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
 
-    - name: Compile
+    - name: Compile Ubuntu
       run:
         ./mill -i __.compile
+      if: matrix.os == 'ubuntu-latest'
 
-    - name: Test
+    - name: Compile Windows
+      run: ./millw.bat -i __.compile
+      if: matrix.os == 'windows-latest'
+
+    - name: Test Ubuntu
       run:
         ./mill -i --debug itest
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Test Windows
+      run:
+        ./millw.bat -i --debug itest
+      if: matrix.os == 'windows-latest'
 
   publish-sonatype:
     if: github.repository == 'ckipp01/mill-giter8' && contains(github.ref, 'refs/tags/')

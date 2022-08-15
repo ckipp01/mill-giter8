@@ -7,6 +7,7 @@ import mill.define.Target
 import mill.define.TaskModule
 import os.Path
 
+import java.nio.file.attribute.PosixFilePermission
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Using
@@ -46,6 +47,55 @@ trait G8Module extends TaskModule {
     */
   def validationTargets: Target[Seq[String]] = T { Seq.empty[String] }
 
+  /** If no mill is detected in the template in order to run the
+    * [[io.kipp.mill.giter8.G8Module.validationTargets]] aginst it we need Mill.
+    * To make this easier, we just download millw, cache it, and use it.
+    *
+    * @return
+    *   the PathRef to millw
+    */
+  private def downloadMill: T[PathRef] = T.task {
+    val log = T.log
+    val exeSuffix = if (scala.util.Properties.isWin) ".bat" else ""
+    log.info(
+      s"No mill found in template root, so falling back to millw${exeSuffix} to validate targets."
+    )
+
+    val url =
+      s"https://raw.githubusercontent.com/lefou/millw/main/millw${exeSuffix}"
+
+    val cacheDir = T.env
+      .get("XDG_CACHE_HOME")
+      .map(os.Path(_))
+      .getOrElse(
+        os.home / ".cache"
+      ) / "mill-giter8"
+
+    val cacheTarget = cacheDir / s"millw${exeSuffix}"
+
+    os.makeDir.all(cacheDir)
+
+    if (!os.exists(cacheTarget)) {
+      log.info(
+        s"No millw${exeSuffix} found in cache so downloading one for you"
+      )
+
+      val r = requests.get(url)
+      if (r.is2xx) {
+        os.write(cacheTarget, r.bytes)
+        if (!scala.util.Properties.isWin) {
+          os.perms.set(
+            cacheTarget,
+            os.perms(cacheTarget) + PosixFilePermission.OWNER_EXECUTE
+          )
+        }
+      } else {
+        Result.Failure(s"Unable to download millw${exeSuffix} when needed.")
+      }
+    }
+    PathRef(cacheTarget)
+  }
+
   /** The main target that you'll want to use. This will first ensure that
     * [[io.kipp.mill.giter8.G8Module.generate]] runs to ensure your project can
     * actually be generated with g8 and then run the
@@ -59,16 +109,26 @@ trait G8Module extends TaskModule {
     val targets = validationTargets()
     val log = T.log
 
+    val exeSuffix = if (scala.util.Properties.isWin) ".bat" else ""
+
+    val mill = if (os.exists(projectPath / s"mill${exeSuffix}")) {
+      s"./mill${exeSuffix}"
+    } else if (os.exists(projectPath / s"millw${exeSuffix}")) {
+      s"./millw${exeSuffix}"
+    } else {
+      downloadMill().path.toString()
+    }
+
+    val d = downloadMill()
+    log.info(d.toString())
     val results: Seq[(String, Int)] = targets.zipWithIndex.map {
       case (command, id) =>
         log.info(
           s"""[${id + 1}/${targets.size}] attempting to run "${command}""""
         )
-        // TODO right now we assume this is here, but we should download it if it's not
-        // TODO we assume non-windows -- we'll need to account for .bat
         // TODO do we want --no-server to be configurable?
         val cmd = os
-          .proc("./mill", "--no-server", command)
+          .proc(mill, "--no-server", command)
           .call(cwd = projectPath)
 
         (command, cmd.exitCode)
@@ -78,7 +138,7 @@ trait G8Module extends TaskModule {
       true
     }
 
-    // TODO this assumes we want everything to suceed. Add in the ability to fail
+    // TODO right now we assume that we want everythign to succeed. Should we?
     if (failed.isEmpty) {
       val msg = "All targets ran successfully!"
       log.info(msg)
