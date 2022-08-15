@@ -34,7 +34,7 @@ object plugin
     s"${pluginName}_mill${millBinaryVersion(millVersion)}"
 
   override def pomSettings = PomSettings(
-    description = "Mill plugin generated with mill-plugin.g8",
+    description = "Giter8 plugin for Mill",
     organization = "io.chris-kipp",
     url = "https://github.com/ckipp01/mill-giter8",
     licenses = Seq(License.`Apache-2.0`),
@@ -49,7 +49,8 @@ object plugin
   )
 
   override def ivyDeps = Agg(
-    ivy"org.foundweekends.giter8::giter8-lib:0.14.0"
+    ivy"org.foundweekends.giter8::giter8-lib:0.14.0",
+    ivy"com.lihaoyi::requests:0.7.1"
   )
 
   override def scalacOptions = Seq("-Ywarn-unused", "-deprecation")
