@@ -68,12 +68,17 @@ object itest extends MillIntegrationTestModule {
 
   override def pluginsUnderTest = Seq(plugin)
 
+  override def perTestResources = T.sources { millSourcePath / "shared" }
+
   def testBase = millSourcePath / "src"
 
   override def testInvocations: T[Seq[(PathRef, Seq[TestInvocation.Targets])]] =
     T {
       Seq(
         PathRef(testBase / "minimal") -> Seq(
+          TestInvocation.Targets(Seq("g8.validate"), noServer = true)
+        ),
+        PathRef(testBase / "no-mill") -> Seq(
           TestInvocation.Targets(Seq("g8.validate"), noServer = true)
         )
       )
