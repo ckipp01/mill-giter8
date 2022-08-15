@@ -47,9 +47,9 @@ trait G8Module extends TaskModule {
   def validationTargets: Target[Seq[String]] = T { Seq.empty[String] }
 
   /** The main target that you'll want to use. This will first ensure that
-    * [[io.kipp.mill.giter8.generate]] runs to ensure your project can actually
-    * be generated with g8 and then run the
-    * [[io.kipp.mill.giter8.validationTargets]] against that project.
+    * [[io.kipp.mill.giter8.G8Module.generate]] runs to ensure your project can
+    * actually be generated with g8 and then run the
+    * [[io.kipp.mill.giter8.G8Module.validationTargets]] against that project.
     *
     * @return
     *   the result of the validation
