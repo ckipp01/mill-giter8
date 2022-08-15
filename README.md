@@ -36,7 +36,7 @@ Assuming the above requirements are true, then to use this plugin you'll want to
 include the plugin and extend the `G8Module` like so:
 
 ```scala
-import $ivy.`io.chris-kipp::mill-giter8::0.0.1`
+import $ivy.`io.chris-kipp::mill-giter8::0.2.0`
 
 import io.kipp.mill.giter8.G8Module
 
@@ -48,7 +48,7 @@ object g8 extends G8Module {
 
 You can then run `mill g8.validate` which will first check to ensure your
 project can be generated from the current template and then ensure the
-`validationTargets` can run against your generated projects.
+`validationTargets` can run against your generated project.
 
 ## Available Targets
 
