@@ -8,9 +8,6 @@ import mill.define.TaskModule
 import os.Path
 
 import java.nio.file.attribute.PosixFilePermission
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Using
 
 trait G8Module extends TaskModule {
 
@@ -166,27 +163,29 @@ trait G8Module extends TaskModule {
     val output = T.dest / "result"
 
     val rawProps: Either[String, G8.OrderedProperties] =
-      Using(os.read.inputStream(propsFile().path))(G8.readProps) match {
-        case Failure(_) if !os.exists(propsFile().path) =>
-          log.info(s"No default.properties file found so skipping...")
-          Right(List.empty)
-        case Failure(err) =>
-          Left(
-            s"""|Something went wrong when trying to read your default.properties.
-                |
-                |${err.getMessage()}""".stripMargin
-          )
-
-        case Success(value) => Right(value)
+      if (!os.exists(propsFile().path)) {
+        log.info(s"No default.properties file found so skipping...")
+        Right(List.empty)
+      } else {
+        val in = os.read.inputStream(propsFile().path)
+        // NOTE that readProps closes the stream
+        Right(G8.readProps(in))
       }
 
     val result = for {
       raw <- rawProps
-      props <- G8.transformProps(raw)
+      mavenTransformed <- G8.transformProps(raw)
+      fullyTransformed =
+        mavenTransformed
+          .foldLeft(G8.ResolvedProperties.empty) { case (resolved, (k, v)) =>
+            resolved + (k -> G8.DefaultValueF(v)(resolved))
+          }
       result <- G8.fromDirectory(
         templateDirectory = templateBase().toIO,
         workingDirectory = templateBase().toIO,
-        arguments = props.map { case (key, value) => s"--${key}=${value}" },
+        arguments = fullyTransformed.map { case (key, value) =>
+          s"--${key}=${value}"
+        }.toSeq,
         forceOverwrite = true,
         outputDirectory = Some(output.toIO)
       )
