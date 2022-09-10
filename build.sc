@@ -79,10 +79,16 @@ object itest extends MillIntegrationTestModule {
     T {
       Seq(
         PathRef(testBase / "minimal") -> Seq(
-          TestInvocation.Targets(Seq("g8.validate"), noServer = true)
+          TestInvocation.Targets(Seq("g8.validate"), noServer = true),
+          TestInvocation
+            .Targets(Seq("validatePackageStructure"), noServer = true)
         ),
         PathRef(testBase / "no-mill") -> Seq(
-          TestInvocation.Targets(Seq("g8.validate"), noServer = true)
+          TestInvocation.Targets(Seq("g8.validate"), noServer = true),
+          TestInvocation.Targets(
+            Seq("validatePackageStructure"),
+            noServer = true
+          )
         )
       )
     }
