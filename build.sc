@@ -1,6 +1,6 @@
 import $ivy.`com.goyeau::mill-scalafix::0.2.11`
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
-import $ivy.`io.chris-kipp::mill-ci-release::0.1.2`
+import $ivy.`io.chris-kipp::mill-ci-release::0.1.3`
 
 import mill._
 import mill.scalalib._
@@ -11,6 +11,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill.scalalib.api.Util.scalaNativeBinaryVersion
 import de.tobiasroeser.mill.integrationtest._
 import io.kipp.mill.ci.release.CiReleaseModule
+import io.kipp.mill.ci.release.SonatypeHost
 
 val millVersion = "0.10.0"
 val scala213 = "2.13.8"
@@ -42,9 +43,7 @@ object plugin
       Seq(Developer("ckipp01", "Chris Kipp", "https://github.com/ckipp01"))
   )
 
-  override def sonatypeUri = "https://s01.oss.sonatype.org/service/local"
-  override def sonatypeSnapshotUri =
-    "https://s01.oss.sonatype.org/content/repositories/snapshots"
+  override def sonatypeHost: Option[SonatypeHost] = Some(SonatypeHost.s01)
 
   override def compileIvyDeps = super.compileIvyDeps() ++ Agg(
     ivy"com.lihaoyi::mill-scalalib:${millVersion}"
