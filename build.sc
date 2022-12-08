@@ -14,7 +14,7 @@ import io.kipp.mill.ci.release.CiReleaseModule
 import io.kipp.mill.ci.release.SonatypeHost
 
 val millVersion = "0.10.0"
-val scala213 = "2.13.8"
+val scala213 = "2.13.10"
 val pluginName = "mill-giter8"
 
 def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
