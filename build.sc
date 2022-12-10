@@ -50,7 +50,7 @@ object plugin
   )
 
   override def ivyDeps = Agg(
-    ivy"org.foundweekends.giter8::giter8-lib:0.16.0",
+    ivy"org.foundweekends.giter8::giter8-lib:0.16.1",
     ivy"com.lihaoyi::requests:0.7.1"
   )
 
