@@ -51,7 +51,7 @@ object plugin
 
   override def ivyDeps = Agg(
     ivy"org.foundweekends.giter8::giter8-lib:0.16.1",
-    ivy"com.lihaoyi::requests:0.7.1"
+    ivy"com.lihaoyi::requests:0.8.0"
   )
 
   override def scalacOptions = Seq("-Ywarn-unused", "-deprecation")
