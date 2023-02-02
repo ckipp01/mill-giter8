@@ -13,7 +13,7 @@ import de.tobiasroeser.mill.integrationtest._
 import io.kipp.mill.ci.release.CiReleaseModule
 import io.kipp.mill.ci.release.SonatypeHost
 
-val millVersion = "0.10.0"
+val millVersion = "0.10.11"
 val scala213 = "2.13.10"
 val pluginName = "mill-giter8"
 
