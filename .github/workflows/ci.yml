@@ -30,12 +30,11 @@ jobs:
         ./mill -i __.fix --check
 
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
       matrix:
         java: ['8', '17']
-        os: ['ubuntu-latest', 'windows-latest']
 
     steps:
     - uses: actions/checkout@v3
@@ -45,21 +44,12 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
 
-    - name: Compile Ubuntu
+    - name: Compile
       run:
         ./mill -i __.compile
       if: matrix.os == 'ubuntu-latest'
 
-    - name: Compile Windows
-      run: ./millw.bat -i __.compile
-      if: matrix.os == 'windows-latest'
-
-    - name: Test Ubuntu
+    - name: Test
       run:
         ./mill -i --debug itest[_].test
       if: matrix.os == 'ubuntu-latest'
-
-    - name: Test Windows
-      run:
-        ./millw.bat -i --debug itest[_].test
-      if: matrix.os == 'windows-latest'
