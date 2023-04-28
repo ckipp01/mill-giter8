@@ -56,10 +56,10 @@ jobs:
 
     - name: Test Ubuntu
       run:
-        ./mill -i --debug itest
+        ./mill -i --debug itest[_].test
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test Windows
       run:
-        ./millw.bat -i --debug itest
+        ./millw.bat -i --debug itest[_].test
       if: matrix.os == 'windows-latest'

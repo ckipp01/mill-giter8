@@ -1,4 +1,4 @@
-import $exec.plugins
+import $file.plugins
 import io.kipp.mill.giter8.G8Module
 import $ivy.`org.scalameta::munit:0.7.29`
 import munit.Assertions._
@@ -14,5 +14,9 @@ def validatePackageStructure = T {
   val expectedFile =
     T.workspace / "out" / "g8" / "generate.overridden" / "io" / "kipp" / "mill" / "giter8" / "G8Module" / "generate.dest" / "result" / "minimal" / "src" / "com" / "example" / "someproject" / "Main.scala"
 
-  assert(os.exists(expectedFile))
+  // Location in new mill. So instead of coding fancy logic of duplicating anything we'll just check both
+  val newExpect = 
+    T.workspace / "out" / "g8" / "generate.super" / "io" / "kipp" / "mill" / "giter8" / "G8Module" / "generate.dest" / "result" / "minimal" / "src" / "com" / "example" / "someproject" / "Main.scala"
+
+  assert(os.exists(expectedFile) || os.exists(newExpect))
 }
