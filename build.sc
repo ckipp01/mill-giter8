@@ -13,7 +13,8 @@ import de.tobiasroeser.mill.integrationtest._
 import io.kipp.mill.ci.release.CiReleaseModule
 import io.kipp.mill.ci.release.SonatypeHost
 
-val millVersion = "0.10.12"
+val millVersions = Seq("0.10.12", "0.11.0-M8")
+val millBinaryVersions = millVersions.map(scalaNativeBinaryVersion)
 val scala213 = "2.13.10"
 val pluginName = "mill-giter8"
 
@@ -21,7 +22,11 @@ def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
   millVersion
 )
 
-object plugin
+def millVersion(binaryVersion: String) =
+  millVersions.find(v => millBinaryVersion(v) == binaryVersion).get
+
+object plugin extends Cross[Plugin](millBinaryVersions: _*)
+class Plugin(millBinaryVersion: String)
     extends ScalaModule
     with CiReleaseModule
     with ScalafixModule
@@ -29,8 +34,10 @@ object plugin
 
   override def scalaVersion = scala213
 
+  override def millSourcePath = super.millSourcePath / os.up
+
   override def artifactName =
-    s"${pluginName}_mill${millBinaryVersion(millVersion)}"
+    s"${pluginName}_mill${millBinaryVersion}"
 
   override def pomSettings = PomSettings(
     description = "Giter8 plugin for Mill",
@@ -46,7 +53,7 @@ object plugin
   override def sonatypeHost: Option[SonatypeHost] = Some(SonatypeHost.s01)
 
   override def compileIvyDeps = super.compileIvyDeps() ++ Agg(
-    ivy"com.lihaoyi::mill-scalalib:${millVersion}"
+    ivy"com.lihaoyi::mill-scalalib:${millVersion(millBinaryVersion)}"
   )
 
   override def ivyDeps = Agg(
@@ -64,11 +71,14 @@ object plugin
   )
 }
 
-object itest extends MillIntegrationTestModule {
+object itest extends Cross[ItestCross](millVersions: _*)
+class ItestCross(millVersion: String) extends MillIntegrationTestModule {
+
+  override def millSourcePath = super.millSourcePath / os.up
 
   override def millTestVersion = millVersion
 
-  override def pluginsUnderTest = Seq(plugin)
+  override def pluginsUnderTest = Seq(plugin(millBinaryVersion(millVersion)))
 
   override def perTestResources = T.sources { millSourcePath / "shared" }
 
