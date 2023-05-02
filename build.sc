@@ -57,7 +57,7 @@ class Plugin(millBinaryVersion: String)
   )
 
   override def ivyDeps = Agg(
-    ivy"org.foundweekends.giter8::giter8-lib:0.16.1",
+    ivy"org.foundweekends.giter8::giter8-lib:0.16.2",
     ivy"com.lihaoyi::requests:0.8.0"
   )
 
