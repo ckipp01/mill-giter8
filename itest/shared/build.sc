@@ -1,4 +1,5 @@
 import $file.plugins
+import mill._
 import io.kipp.mill.giter8.G8Module
 import $ivy.`org.scalameta::munit:0.7.29`
 import munit.Assertions._

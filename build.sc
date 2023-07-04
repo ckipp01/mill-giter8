@@ -7,8 +7,8 @@ import mill.scalalib._
 import mill.scalalib.scalafmt._
 import mill.scalalib.publish._
 import mill.scalalib.api.ZincWorkerUtil
+import mill.scalalib.api.ZincWorkerUtil._
 import com.goyeau.mill.scalafix.ScalafixModule
-import mill.scalalib.api.Util.scalaNativeBinaryVersion
 import de.tobiasroeser.mill.integrationtest._
 import io.kipp.mill.ci.release.CiReleaseModule
 import io.kipp.mill.ci.release.SonatypeHost
@@ -25,19 +25,18 @@ def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
 def millVersion(binaryVersion: String) =
   millVersions.find(v => millBinaryVersion(v) == binaryVersion).get
 
-object plugin extends Cross[Plugin](millBinaryVersions: _*)
-class Plugin(millBinaryVersion: String)
-    extends ScalaModule
+object plugin extends Cross[Plugin](millBinaryVersions)
+trait Plugin
+    extends Cross.Module[String]
+    with ScalaModule
     with CiReleaseModule
     with ScalafixModule
     with ScalafmtModule {
 
   override def scalaVersion = scala213
 
-  override def millSourcePath = super.millSourcePath / os.up
-
   override def artifactName =
-    s"${pluginName}_mill${millBinaryVersion}"
+    s"${pluginName}_mill${crossValue}"
 
   override def pomSettings = PomSettings(
     description = "Giter8 plugin for Mill",
@@ -53,7 +52,7 @@ class Plugin(millBinaryVersion: String)
   override def sonatypeHost: Option[SonatypeHost] = Some(SonatypeHost.s01)
 
   override def compileIvyDeps = super.compileIvyDeps() ++ Agg(
-    ivy"com.lihaoyi::mill-scalalib:${millVersion(millBinaryVersion)}"
+    ivy"com.lihaoyi::mill-scalalib:${millVersion(crossValue)}"
   )
 
   override def ivyDeps = Agg(
@@ -67,14 +66,12 @@ class Plugin(millBinaryVersion: String)
     ZincWorkerUtil.scalaBinaryVersion(scala213)
 }
 
-object itest extends Cross[ItestCross](millVersions: _*)
-class ItestCross(millVersion: String) extends MillIntegrationTestModule {
+object itest extends Cross[ItestCross](millVersions)
+trait ItestCross extends Cross.Module[String] with MillIntegrationTestModule {
 
-  override def millSourcePath = super.millSourcePath / os.up
+  override def millTestVersion = crossValue
 
-  override def millTestVersion = millVersion
-
-  override def pluginsUnderTest = Seq(plugin(millBinaryVersion(millVersion)))
+  override def pluginsUnderTest = Seq(plugin(millBinaryVersion(crossValue)))
 
   override def perTestResources = T.sources { millSourcePath / "shared" }
 
