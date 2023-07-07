@@ -64,6 +64,8 @@ trait Plugin
 
   override def scalafixScalaBinaryVersion =
     ZincWorkerUtil.scalaBinaryVersion(scala213)
+
+  override def semanticDbVersion = "4.8.1"
 }
 
 object itest extends Cross[ItestCross](millVersions)
