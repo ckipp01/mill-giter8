@@ -15,7 +15,7 @@ import io.kipp.mill.ci.release.SonatypeHost
 
 val millVersions = Seq("0.10.12", "0.11.2")
 val millBinaryVersions = millVersions.map(scalaNativeBinaryVersion)
-val scala213 = "2.13.11"
+val scala213 = "2.13.12"
 val pluginName = "mill-giter8"
 
 def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
@@ -64,8 +64,6 @@ trait Plugin
 
   override def scalafixScalaBinaryVersion =
     ZincWorkerUtil.scalaBinaryVersion(scala213)
-
-  override def semanticDbVersion = "4.8.1"
 }
 
 object itest extends Cross[ItestCross](millVersions)
