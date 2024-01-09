@@ -101,7 +101,7 @@ trait G8Module extends TaskModule {
     * @return
     *   the result of the validation
     */
-  def validate = T {
+  def validate: Target[String] = T {
     val projectPath = generate()
     val targets = validationTargets()
     val log = T.log
