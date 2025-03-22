@@ -56,7 +56,7 @@ trait Plugin
   )
 
   override def ivyDeps = Agg(
-    ivy"org.foundweekends.giter8::giter8-lib:0.16.2",
+    ivy"org.foundweekends.giter8::giter8-lib:0.17.0",
     ivy"com.lihaoyi::requests:0.9.0"
   )
 
